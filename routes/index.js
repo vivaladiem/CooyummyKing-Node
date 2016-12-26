@@ -108,6 +108,7 @@ exports.handlers = handlers = {
 
 			knex('users').insert(userData).then(function(result) {
 				// 프로필 이미지를 저장합니다
+				// TODO formidable이 최상단에서 감싸게 만들어야.(이미지 있으면 bodyParser 데이터를 가로챔)
 				var form = formidable.IncomingForm();
 				form.uploadDir = usersDir;
 				form.parse(req, function(error, fields, files) {
@@ -233,11 +234,6 @@ exports.handlers = handlers = {
 
 	getFollowingUsers: function(req, res) {},
 
-	// TODO 파일을 한 번에 처리하니 좀 느리다. 따로 처리하고 클라이언트에선 두 가지 요청에 응답을 모두 받았을 때 정상처리로 처리하는게 어떤가 싶음
-	// imageLength는 뭐 클라이언트에서 인자로 주면 되니까.
-	// 하나가 잘못되면 나머지를 다 취소해야 하는게 문제.. 아니.. 그럴필요는 없나? 그냥 다시 업로드하라고만 알려주면 되니까? 파일만큼은 삭제해야겠지만
-	// 지금 이건 평행하게 진행되는게 어디까진지 잘 모르겠다아.
-	// 아 시간없다 나중에
 	createRecipe: function(req, res) {
 		var form = formidable.IncomingForm();
 		form.uploadDir = recipesDir;
@@ -321,7 +317,7 @@ exports.handlers = handlers = {
 							_.forEach(images, function(file, index) {
 								var filePath = path.join(imageDir, index);
 								fs.renameAsync(file, filePath).then(function() {
-									//if (index.search("org") != -1) return;
+									if (index.search("org") != -1) return; // 원본 이미지는 그대로 저장합니다
 									gm(filePath).resize(240, 240).quality(80).write(filePath + "_sm", function(err) {if (err) console.log(err);});
 									gm(filePath).resize(480, 480).quality(80).write(filePath + "_md", function(err) {if (err) console.log(err);});
 								}).catch(function(err) {
@@ -366,17 +362,10 @@ exports.handlers = handlers = {
 		// Execute stored procedure (require execute privilege)
 		knex.raw('call getRecipeList').then(function(results) {
 			results = results[0][0];
-			results = _.pluck(results, 'id');
 
-			knex('recipes').select('id', 'title', 'main_image_index').whereIn('id', results).then(function(recipes) {
-				res.status(200).send({
-					result: 1,
-					recipes: recipes
-				});
-			}).catch(function(err) {
-				console.log(getLogFormat(req) + '레시피 조회 실패 knex 오류');
-				console.log(err);
-				sendError(res, '서버 오류');
+			res.status(200).send({
+				result: 1,
+				recipes: results
 			});
 		}).catch(function(err) {
 			console.log(getLogFormat(req) + '레시피 목록 조회 실패 knex 오류 / mysql procedure');
