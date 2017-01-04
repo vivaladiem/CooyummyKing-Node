@@ -15,7 +15,7 @@ var express = require('express')
 app.set('config', require('./config/development.json'));
 
 /* set common environment */
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 52273);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
@@ -93,7 +93,7 @@ require('./routes').init(app);
 
 /* start server */
 var server = app.listen(app.get('port'), function() {
-	console.log('Server Running at heroku');
+	console.log('Server Running at AWS');
 });
 
 process.on('uncaughtException', function(err) {

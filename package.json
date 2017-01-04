@@ -1,5 +1,5 @@
 {
-  "name": "cooyummyKing",
+  "name": "ryan",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
@@ -9,18 +9,27 @@
     "express": "~4.11.1",
     "jade": "~1.9.1",
     "morgan": "~1.5.1",
-
     "lodash": "~3.6.0",
     "date-utils": "1.2.x",
     "validator": "*",
-
     "formidable": "*",
     "mkdirp": "~0.5.0",
     "gm": "~1.17.0",
-
     "mysql": "*",
-    "knex": "~0.7.6",
-
+    "knex": "~0.12.6",
     "bluebird": "~2.9.25"
-  }
+  },
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/ryan0x4/cooyummyking-node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/ryan0x4/cooyummyking-node#readme",
+  "description": ""
 }

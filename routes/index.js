@@ -79,7 +79,7 @@ exports.handlers = handlers = {
 			, profile_text = req.body.profile_text
 			, profileImagePath;
 
-		if (!validator.isEmail(email) || validator.isNull(userName) || validator.isNull(password)) {
+		if (!validator.isEmail(email) || validator.isEmpty(userName) || validator.isEmpty(password)) {
 			console.log(getLogFormat(req) + '잘못된 요청 / email: ' + email);
 			sendError(res, '잘못된 요청입니다');
 			return;
@@ -99,7 +99,7 @@ exports.handlers = handlers = {
 
 			var userData = {
 				email: email,
-				name: userName,
+				username: userName,
 				password: encryptPassword(password),
 				token: token,
 				phone: phone,
@@ -147,18 +147,18 @@ exports.handlers = handlers = {
 		var email = req.body.email,
 			password = req.body.password;
 
-		if (!validator.isEmail(email) || validator.isNull(password)) {
+		if (!validator.isEmail(email) || validator.isEmpty(password)) {
 			console.log(getLogFormat(req) + '잘못된 요청 / email : ' + email);
 			sendError(res, '잘못된 요청입니다.');
 			return;
 		}
 
-		knex('users').select('id', 'password', 'token').where('email', email).first().then(function(user) {
+		knex('users').select('user_id', 'password', 'token').where('email', email).first().then(function(user) {
 			if (user) {
 				if (encryptPassword(password) === user.password) {
 					res.status(200).send({
 						result: 1,
-						user_id: user.id,
+						user_id: user.user_id,
 						token: user.token
 					});
 				} else {
@@ -185,8 +185,8 @@ exports.handlers = handlers = {
 			return;
 		}
 
-		var columns = ['id', 'email', 'name', 'phone', 'profile_text', 'point', 'level', 'recipe_count', 'following_count', 'follower_count'];
-		knex('users').select(columns).where('id', userId).first().then(function(user) {
+		var columns = ['user_id', 'email', 'name', 'phone', 'profile_text', 'point', 'level', 'recipe_count', 'following_count', 'follower_count'];
+		knex('users').select(columns).where('user_id', userId).first().then(function(user) {
 			if (!user) {
 				console.log(getLogFormat(req) + '유저 정보 없음 / user_id: ' + userId);
 				sendError(res, '유저 정보가 없습니다');
@@ -268,13 +268,13 @@ exports.handlers = handlers = {
 				return;
 			}
 
-			if (!validator.isNumeric(userId) || validator.isNull(title)) {
+			if (!validator.isNumeric(userId) || validator.isEmpty(title)) {
 				console.log(getLogFormat(req) + '잘못된 요청 / user_id: ' + userId);
 				//sendError(res, '잘못된 요청입니다');
 				//return;
 			}
 
-			knex('users').select('token').where('id', userId).first().then(function(user) {
+			knex('users').select('token').where('user_id', userId).first().then(function(user) {
 				if (token != user.token) {
 					console.log(getLogFormat(req) + '권한 없음 / user_id: ' + userId);
 					//sendError(res, '권한이 없습니다.');
@@ -378,8 +378,8 @@ exports.handlers = handlers = {
 		var recipeId = req.params.recipe_id;
 		var userId = req.params.user_id;
 
-		var columns = ['users.id as user_id', 'users.name as username', 'instruction', 'cooking_time', 'theme', 'ingredient', 'source', 'like_count', 'scrap_count'];
-		knex('recipes').join('users', 'users.id', '=', 'recipes.user_id').select(columns).where('recipes.id', recipeId).first().then(function(recipe) {
+		var columns = ['users.user_id as user_id', 'users.username as username', 'instruction', 'cooking_time', 'theme', 'ingredient', 'source', 'like_count', 'scrap_count'];
+		knex('recipes').join('users', 'users.user_id', '=', 'recipes.user_id').select(columns).where('recipes.recipe_id', recipeId).first().then(function(recipe) {
 			if (userId == recipe.user_id) {
 				recipe.type = 'MY';
 			}
@@ -420,7 +420,7 @@ exports.handlers = handlers = {
 		var userId = req.body.user_id,
 			recipeId = req.body.recipe_id;
 
-		var data = {user_id: useId, recipe_id: recipeId};
+		var data = {user_id: userId, recipe_id: recipeId};
 
 		knex('likes').delete(data).then(function(result) {
 			res.status(200).send({
@@ -443,7 +443,7 @@ exports.handlers = handlers = {
 			return;
 		}
 
-		knex('users').select('token').where('id', userId).first().then(function(user) {
+		knex('users').select('token').where('user_id', userId).first().then(function(user) {
 			if (token != user.token) {
 				console.log(getLogFormat(req) + '권한 없음 / user_id: ' + userId);
 				sendError(res, '권한이 없습니다');
@@ -478,7 +478,7 @@ exports.handlers = handlers = {
 			return;
 		}
 
-		knex('users').select('token').where('id', userId).first().then(function(user) {
+		knex('users').select('token').where('user_id', userId).first().then(function(user) {
 			if (user.token != token) {
 				console.log(getLogFormat(req) + '권한 없음 / user_id: ' + userId);
 				sendError(res, '권한이 없습니다');
