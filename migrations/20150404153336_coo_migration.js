@@ -1,5 +1,6 @@
 var log = console.log;
-'use strict'; exports.up = function(knex, Promise) {
+'use strict';
+exports.up = function(knex, Promise) {
 	return Promise.all([
 		knex.schema.createTable('users', function(t) {
 			t.increments('user_id');
@@ -99,7 +100,8 @@ var log = console.log;
 			t.integer('recipe_id', 10).unsigned().references('recipe_id').inTable('recipes').onUpdate('no action').onDelete('cascade');
 		}).catch(function(err) {
 			console.log(err);
-		}),
+		})
+	]).all([
 
 		knex.schema.raw('CREATE TRIGGER follow_insert AFTER INSERT ON follows' +
 						' FOR EACH ROW BEGIN' +
@@ -172,7 +174,7 @@ var log = console.log;
 };
 
 exports.down = function(knex, Promise) {
-	Promise.all([
+	return Promise.all([
 		knex.raw('SET foreign_key_checks = 0;'),
 		knex.schema.dropTableIfExists('likes').catch(function(err) {
 			console.log(err);
