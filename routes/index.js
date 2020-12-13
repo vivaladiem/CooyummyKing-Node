@@ -5,7 +5,7 @@ var crypto = require('crypto')
 	, Promise = require('bluebird')
 	, fs = require('fs')
 	, formidable = require('formidable')
-	, gm = require('gm')
+	, gm = require('gm').subClass({imageMagick: true})
 	, usersDir
 	, recipesDir
 	, knex
